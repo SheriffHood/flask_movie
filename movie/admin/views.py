@@ -5,4 +5,4 @@ from movie.admin import admin_blueprint
 
 @admin_blueprint.route('/')
 def index():
-    return "<h1 style='color:red>'this is admin</h1>"
+    return "<h1 style='color:red'>this is admin</h1>"
