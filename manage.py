@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 from flask_script import Manager, Shell, Server
-from app import app
+from movie import app
 from settings import DevConfig
 
 app.config.from_object(DevConfig)

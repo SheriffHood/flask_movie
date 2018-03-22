@@ -3,8 +3,8 @@
 
 from flask import Flask
 from settings import DevConfig
-from app.admin import admin_blueprint
-from app.home import home_blueprint
+from movie.admin import admin_blueprint
+from movie.home import home_blueprint
 
 app = Flask(__name__)
 app.config.from_object(DevConfig)
