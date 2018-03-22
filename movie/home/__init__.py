@@ -3,4 +3,6 @@
 
 from flask import Blueprint
 
-home_blueprint = Blueprint( "home", __name__ )
+home_blueprint = Blueprint( 'home', __name__ )
+
+import movie.home.views
