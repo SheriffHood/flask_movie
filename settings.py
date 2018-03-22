@@ -9,3 +9,5 @@ class ProdConfig(Config):
 
 class DevConfig(Config):
     DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:password@localhost/movie'
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
