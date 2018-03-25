@@ -159,7 +159,7 @@ class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
     auths = db.Column(db.String(600))
-    addtime = db.Coluem(db.String(255), index=True, default=datetime.now)
+    addtime = db.Column(db.String(255), index=True, default=datetime.now)
 
     admins = db.relationship('Admin', backref='role')
 
@@ -172,7 +172,7 @@ class Admin(db.Model):
     name = db.Column(db.String(100), unique=True)
     pwd = db.Column(db.String(100))
     is_super = db.Column(db.SmallInteger)
-    addtime = db.Coluem(db.String(255), index=True, default=datetime.now)
+    addtime = db.Column(db.String(255), index=True, default=datetime.now)
 
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
 
@@ -194,7 +194,7 @@ class Adminlog(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     ip = db.Column(db.String(100))
-    addtime = db.Coluem(db.String(255), index=True, default=datetime.now)
+    addtime = db.Column(db.String(255), index=True, default=datetime.now)
 
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
 
@@ -210,7 +210,7 @@ class Oplog(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     ip = db.Column(db.String(100))
-    addtime = db.Coluem(db.String(255), index=True, default=datetime.now)
+    addtime = db.Column(db.String(255), index=True, default=datetime.now)
     reason = db.Column(db.String(600))
 
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
