@@ -12,7 +12,7 @@ def index():
 
 @home_blueprint.route('/login/')
 def login():
-    return render_template('home/login.html')
+    return render_template('home/login.html', form=form)
 
 @home_blueprint.route('/logout/')
 def logout():
@@ -29,4 +29,7 @@ def user():
 @home_blueprint.route('/serach/<int:page>/')
 def search(page=None):
     pass
+<<<<<<< HEAD
+>>>>>>> enzo
+=======
 >>>>>>> enzo
