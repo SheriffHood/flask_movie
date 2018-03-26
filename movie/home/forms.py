@@ -35,6 +35,6 @@ class PwdForm(FlaskForm):
     submit = SubmitField()
 
 class CommentForm(FlaskForm):
-    content = TextAreaField(label='内容', validators=[DataRequired('请输入内容! ')],
-    description='昵称', render_kw={"id":"input_content"})
-    submit = SubmitField('提交评论', render_kw={"class": "btn btn-success", "id": "btn-sub"})
+    name = StringField('Username', validators=[DataRequired(), Length(max=255)])
+    content = TextAreaField('Comment', validators=[DataRequired()])
+    submit = SubmitField('Submit')
