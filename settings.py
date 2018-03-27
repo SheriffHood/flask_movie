@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 class Config(object):
-    pass
+    SECRET_KEY = 'ode7oyfn434nvhxp9tfaw5gnc6mogkg3'
 
 class ProdConfig(Config):
     pass

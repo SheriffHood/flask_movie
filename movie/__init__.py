@@ -5,9 +5,19 @@ from flask import Flask
 from settings import DevConfig
 from movie.admin import admin_blueprint
 from movie.home import home_blueprint
+from movie.models import db
+from movie.extensions import csrf
 
-app = Flask(__name__)
-app.config.from_object(DevConfig)
 
-app.register_blueprint(admin_blueprint, url_prefix='/admin')
-app.register_blueprint(home_blueprint)
+def create_app(object_name):
+
+    app = Flask(__name__)
+    app.config.from_object(object_name)
+
+    db.init_app(app)
+    csrf.init_app(app)
+    
+    app.register_blueprint(admin_blueprint, url_prefix='/admin')
+    app.register_blueprint(home_blueprint)
+
+    return app
