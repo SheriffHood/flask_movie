@@ -6,9 +6,6 @@ from movie.home.forms import LoginForm, RegisterForm
 
 @home_blueprint.route('/')
 def index():
-<<<<<<< HEAD
-    return "<h1 style='color:green'>this is home</h1>"
-=======
     return render_template('home/index.html')
 
 @home_blueprint.route('/login/', methods=['GET', 'POST'])
@@ -33,7 +30,3 @@ def user():
 @home_blueprint.route('/serach/<int:page>/')
 def search(page=None):
     pass
-<<<<<<< HEAD
->>>>>>> enzo
-=======
->>>>>>> enzo
