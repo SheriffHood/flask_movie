@@ -10,10 +10,7 @@ def index():
 
 @home_blueprint.route('/login/', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        pass  
-    return render_template('home/login.html', form=form)
+    return render_template('home/login.html')
 
 @home_blueprint.route('/logout/', methods=['GET', 'POST'])
 def logout():
@@ -42,3 +39,19 @@ def loginlog():
 @home_blueprint.route('/moviecol/')
 def moviecol():
     return render_template('home/moviecol.html')
+
+@home_blueprint.route('/animation/')
+def animation():
+    return render_template('/home/animation.html')
+
+@home_blueprint.route('/search/')
+def search():
+    return render_template('home/search.html')
+
+@home_blueprint.route('/play/')
+def play():
+    return render_template('home/play.html')
+
+@home_blueprint.errorhandler(404)
+def page_not_found(error):
+    return render_template('home/404.html')
