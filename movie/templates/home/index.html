@@ -24,7 +24,7 @@
                         <td style="width:10%;">电影标签</td>
                         <td style="width:90%;">
                             {% for v in tags %}
-                                <a href="{{ url_for('home.index',page=1) }}?tid={{ v.id }}&star={{ p['star'] }}&time={{ p['time'] }}&pm={{ p['pm'] }}&cm={{ p['cm'] }}"
+                                <a href="{{ url_for('home.index',page=1) }}?tid={{ v.id }}&star={{ pg['star'] }}&time={{ pg['time'] }}&pm={{ pg['pm'] }}&cm={{ pg['cm'] }}"
                                    class="label label-info"><span
                                         class="glyphicon glyphicon-tag"></span>&nbsp;{{ v.name }}</a>
                             &nbsp;
@@ -34,7 +34,7 @@
                         <td>电影星级</td>
                         <td>
                             {% for v in range(1,6) %}
-                                <a href="{{ url_for('home.index',page=1) }}?tid={{ p['tid'] }}&star={{ v }}&time={{ p['time'] }}&pm={{ p['pm'] }}&cm={{ p['cm'] }}"
+                                <a href="{{ url_for('home.index',page=1) }}?tid={{ pg['tid'] }}&star={{ v }}&time={{ pg['time'] }}&pm={{ pg['pm'] }}&cm={{ pg['cm'] }}"
                                    class="label label-warning"><span
                                         class="glyphicon glyphicon-star"></span>&nbsp;{{ v }}星</a>
                             &nbsp;
@@ -44,11 +44,11 @@
                     <tr>
                         <td>上映时间</td>
                         <td>
-                            <a href="{{ url_for('home.index',page=1) }}?tid={{ p['tid'] }}&star={{ p['star'] }}&time=1&pm={{ p['pm'] }}&cm={{ p['cm'] }}"
+                            <a href="{{ url_for('home.index',page=1) }}?tid={{ pg['tid'] }}&star={{ pg['star'] }}&time=1&pm={{ pg['pm'] }}&cm={{ pg['cm'] }}"
                                class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;最近</span>
                             </a>
                             &nbsp;
-                            <a href="{{ url_for('home.index',page=1) }}?tid={{ p['tid'] }}&star={{ p['star'] }}&time=2&pm={{ p['pm'] }}&cm={{ p['cm'] }}"
+                            <a href="{{ url_for('home.index',page=1) }}?tid={{ pg['tid'] }}&star={{ pg['star'] }}&time=2&pm={{ pg['pm'] }}&cm={{ pg['cm'] }}"
                                class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;更早</span>
                             </a>
                         </td>
@@ -56,10 +56,10 @@
                     <tr>
                         <td>播放数量</td>
                         <td>
-                            <a href="{{ url_for('home.index',page=1) }}?tid={{ p['tid'] }}&star={{ p['star'] }}&time={{ p['time'] }}&pm=1&cm={{ p['cm'] }}"
+                            <a href="{{ url_for('home.index',page=1) }}?tid={{ pg['tid'] }}&star={{ pg['star'] }}&time={{ pg['time'] }}&pm=1&cm={{ pg['cm'] }}"
                                class="label label-success"><span class="glyphicon glyphicon-arrow-down"></span>&nbsp;从高到底</a>
                             &nbsp;
-                            <a href="{{ url_for('home.index',page=1) }}?tid={{ p['tid'] }}&star={{ p['star'] }}&time={{ p['time'] }}&pm=2&cm={{ p['cm'] }}"
+                            <a href="{{ url_for('home.index',page=1) }}?tid={{ pg['tid'] }}&star={{ pg['star'] }}&time={{ pg['time'] }}&pm=2&cm={{ pg['cm'] }}"
                                class="label label-danger"><span
                                     class="glyphicon glyphicon-arrow-up"></span>&nbsp;从低到高</a>
                         </td>
@@ -67,10 +67,10 @@
                     <tr>
                         <td>评论数量</td>
                         <td>
-                            <a href="{{ url_for('home.index',page=1) }}?tid={{ p['tid'] }}&star={{ p['star'] }}&time={{ p['time'] }}&pm={{ p['pm'] }}&cm=1"
+                            <a href="{{ url_for('home.index',page=1) }}?tid={{ pg['tid'] }}&star={{ pg['star'] }}&time={{ pg['time'] }}&pm={{ pg['pm'] }}&cm=1"
                                class="label label-success"><span class="glyphicon glyphicon-arrow-down"></span>&nbsp;从高到底</a>
                             &nbsp;
-                            <a href="{{ url_for('home.index',page=1) }}?tid={{ p['tid'] }}&star={{ p['star'] }}&time={{ p['time'] }}&pm={{ p['pm'] }}&cm=2"
+                            <a href="{{ url_for('home.index',page=1) }}?tid={{ pg['tid'] }}&star={{ pg['star'] }}&time={{ pg['time'] }}&pm={{ pg['pm'] }}&cm=2"
                                class="label label-danger"><span
                                     class="glyphicon glyphicon-arrow-up"></span>&nbsp;从低到高</a>
                         </td>
