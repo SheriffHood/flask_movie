@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #-*- coding:utf-8 -*-
 
-from flask import Flask
+from flask import Flask, render_template
 from settings import DevConfig
 from movie.admin import admin_blueprint
 from movie.home import home_blueprint
@@ -19,5 +19,9 @@ def create_app(object_name):
     
     app.register_blueprint(admin_blueprint, url_prefix='/admin')
     app.register_blueprint(home_blueprint)
+
+    @app.errorhandler(404)
+    def page_not_found(error):
+        return render_template('home/404.html'), 404
 
     return app
