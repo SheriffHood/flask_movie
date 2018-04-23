@@ -3,6 +3,7 @@
 
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import check_password_hash
 
 db = SQLAlchemy()
 
@@ -185,7 +186,7 @@ class Admin(db.Model):
         return '<Admin %r>' % self.name
         
     def check_pwd(self, pwd):
-        pass
+        return check_password_hash(self.pwd, pwd)
 
 class Adminlog(db.Model):
     

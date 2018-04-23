@@ -5,8 +5,8 @@ from flask import Flask, render_template
 from settings import DevConfig
 from movie.admin import admin_blueprint
 from movie.home import home_blueprint
-from movie.models import db
 from movie.extensions import csrf
+from movie.models import db
 
 
 def create_app(object_name):
