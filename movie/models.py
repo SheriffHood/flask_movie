@@ -179,14 +179,19 @@ class Admin(db.Model):
     adminlogs = db.relationship('Adminlog', backref='admin')
     oplogs = db.relationship('Oplog', backref='admin')
 
-    def __init__(self, name):
+    def __init__(self, id, name, pwd, is_super, addtime):
+        self.id = id
         self.name = name
+        self.pwd = pwd
+        self.is_super = is_super
+        self.addtime = addtime
 
     def __repr__(self):
         return '<Admin %r>' % self.name
         
     def check_pwd(self, pwd):
-        return check_password_hash(self.pwd, pwd)
+        if self.pwd == pwd:
+            return True;
 
 class Adminlog(db.Model):
     

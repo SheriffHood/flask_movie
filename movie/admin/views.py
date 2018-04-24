@@ -21,16 +21,15 @@ def index():
     return render_template('admin/index.html')
 
 @admin_blueprint.route('/login/', methods=['GET', 'POST'])
-@admin_login_required
 def login():
     form = LoginForm()
     if form.validate_on_submit():
         data = form.data
-        admin = Admin.query.filter_by(name=data['username']).first()
+        admin = Admin.query.filter_by(name=data['name']).first()
         if not admin.check_pwd(data['pwd']):
             flash('wrong password')
             return redirect( url_for('admin.login') )
-        session['admin'] = data['username']
+        session['admin'] = data['name']
         return redirect(request.args.get('next') or url_for('admin.index'))
     return render_template('admin/login.html', form=form)
 
