@@ -51,13 +51,13 @@ class Tag(db.Model):
     __tablename__ = 'tag'
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), unique=True)
+    name = db.Column(db.String(100), unique=True)
     addtime = db.Column(db.DateTime, index=True, default=datetime.now)
 
     movies = db.relationship('Movie', backref='tag', lazy=True)
 
-    def __init__(self, title):
-        self.title = title
+    def __init__(self, name):
+        self.name = name
 
     def __repr__(self):
         return '<Tag %r>' % self.title

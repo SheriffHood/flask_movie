@@ -4,7 +4,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, FileField, TextAreaField
 from wtforms.validators import DataRequired, Email, Regexp, EqualTo, ValidationError, Length
-from movie.models import User, Admin
+from movie.models import User, Admin, Tag
 
 class RegisterForm(FlaskForm):
     name = StringField('Username', [DataRequired(), Length(max=25)])
@@ -46,6 +46,23 @@ class LoginForm(FlaskForm):
         admin = Admin.query.filter_by(name=username).count
         if admin == 0:
             raise ValidationError('not exists')
+
+class TagForm(FlaskForm):
+    name = StringField(
+        label='name',
+        validators=[DataRequired()],
+        description='Tag',
+        render_kw={
+            'class':'form-control',
+            'id':'input_name',
+            'placeholder':'Please input tags'
+        })
+
+    submit = SubmitField(
+        label='Submit',
+        render_kw={
+            'class':'btn btn-primary'
+        })
 
 class UserdetailForm(FlaskForm):
     name = StringField()

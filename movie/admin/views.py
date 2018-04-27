@@ -3,9 +3,10 @@
 
 from movie.admin import admin_blueprint
 from flask import render_template, redirect, url_for, flash, session, request
-from movie.admin.forms import LoginForm
-from movie.models import Admin
+from movie.admin.forms import LoginForm, TagForm
+from movie.models import Admin, Tag
 from functools import wraps
+from movie.models import db
 
 def admin_login_required(func):
     @wraps(func)
@@ -33,7 +34,7 @@ def login():
         return redirect(request.args.get('next') or url_for('admin.index'))
     return render_template('admin/login.html', form=form)
 
-@admin_blueprint.route('logout/', methods=['GET', 'POST'])
+@admin_blueprint.route('/logout/', methods=['GET', 'POST'])
 @admin_login_required
 def logout():
     session.pop('admin', None)
@@ -44,15 +45,30 @@ def logout():
 def password():
     return render_template('admin/password.html')
 
-@admin_blueprint.route('/tag/add/')
+@admin_blueprint.route('/tag/add/', methods=['GET', 'POST'])
 @admin_login_required
 def tag_add():
-    return render_template('admin/tag_add.html')
+    form = TagForm()
+    if form.validate_on_submit():
+        data = form.data
+        tag = Tag.query.filter_by(name=data['name']).count()
+        if tag == 1:
+            flash('Tag already exists', 'err')
+            return redirect( url_for('admin.tag_add') )
+        tag = Tag(name = data['name'])
+        db.session.add(tag)
+        db.session.commit()
+        flash('Create Tag successfully', 'ok')
+        return redirect( url_for('admin.tag_add') )
+    return render_template('admin/tag_add.html', form=form)
 
-@admin_blueprint.route('/tag/list/')
+@admin_blueprint.route('/tag/list/<int:page>/', methods=['GET'])
 @admin_login_required
-def tag_list():
-    return render_template('admin/tag_list.html')
+def tag_list(page):
+    if page == None:
+        page = 1
+    page_data = Tag.query.order_by(Tag.addtime.desc()).paginate(page=page, per_page=1)
+    return render_template('admin/tag_list.html', page_data=page_data)
 
 @admin_blueprint.route('/movie/add/')
 @admin_login_required
