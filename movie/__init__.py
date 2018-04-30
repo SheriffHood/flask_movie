@@ -13,8 +13,10 @@ def create_app(object_name):
 
     app = Flask(__name__)
     app.config.from_object(object_name)
+    
+    with app.app_context():
+        db.init_app(app)
 
-    db.init_app(app)
     csrf.init_app(app)
     
     app.register_blueprint(admin_blueprint, url_prefix='/admin')

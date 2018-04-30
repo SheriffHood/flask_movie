@@ -1,12 +1,23 @@
 #!/usr/bin/env python3
 #-*- coding:utf-8 -*-
 
+import os, uuid, datetime
 from movie.admin import admin_blueprint
 from flask import render_template, redirect, url_for, flash, session, request
-from movie.admin.forms import LoginForm, TagForm
-from movie.models import Admin, Tag
+from movie.admin.forms import LoginForm, TagForm, MovieForm
+from movie.models import Admin, Tag, Movie
 from functools import wraps
 from movie.models import db
+from werkzeug.utils import secure_filename
+#from flask_movie import settings
+from movie import app
+
+
+def change_filename(filename):
+    fileinfo = os.path.splitext(filename)
+    filename = datetime.datetime.now().strftme("%Y%m%d%H%M%S") + str(uuid.uuid4().hex) + fileinfo[-1]
+    return filename
+
 
 def admin_login_required(func):
     @wraps(func)
@@ -100,10 +111,44 @@ def tag_edit(id=None):
         return redirect( url_for('admin.tag_edit', id=id) )
     return render_template('admin/tag_edit.html', form=form, tag=tag)
     
-@admin_blueprint.route('/movie/add/')
+@admin_blueprint.route('/movie/add/', methods=['GET', 'POST'])
 @admin_login_required
 def movie_add():
-    return render_template('admin/movie_add.html')
+    form = MovieForm()
+    if request.method == 'GET':
+        form.tag_id.choices = [ (v.id, v.name) for v in Tag.query.all() ]
+
+    if form.validate_on_submit():
+        data = form.data
+        file_url = secure_filename(form.url.data.filename)
+        file_logo = secure_filename(form.url.logo.filename)
+
+        if not os.path.exists(app.config[UPLOAD_PATH]):
+            os.makedirs(app.config[UPLOAD_PATH])
+            os.chmod(app.config[UPLOAD_PATH], 'rw')
+        url = change_filename(file_url)
+        logo = change_filename(file_logo)
+        form.url.data.save(app.config[UPLOAD_PATH]+url)
+        form.logo.data.save(app.config[UPLOAD_PATH]+logo)
+
+        movie = Movie(
+            title = data['title'],
+            url = url,
+            info = data['info'],
+            logo = logo,
+            star = data['star'],
+            playnum = 0,
+            commentnum = 0,
+            tag_id = data['tag_id'],
+            area = data['area'],
+            release_time = data['release_time'],
+            length = data['lenght']
+        )
+        db.session.add(movie)
+        db.session.commit()
+        flash('Add movie successfully', 'ok')
+        return redirect( url_for('admin.movie_add') )
+    return render_template('admin/movie_add.html', form=form)
 
 @admin_blueprint.route('/movie/list/')
 @admin_login_required

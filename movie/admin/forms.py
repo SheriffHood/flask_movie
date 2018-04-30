@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, FileField, TextAreaField
+from wtforms import StringField, PasswordField, SubmitField, FileField, TextAreaField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Email, Regexp, EqualTo, ValidationError, Length
 from movie.models import User, Admin, Tag
 
@@ -23,7 +23,8 @@ class LoginForm(FlaskForm):
             'class':'form-control',
             'placeholder':'Please input username',
             'required':'required'
-        })
+        }
+    )
 
     pwd = StringField(
         label='Password',
@@ -33,13 +34,15 @@ class LoginForm(FlaskForm):
             'class':'form-control',
             'placeholder':'Please input password',
             'required':'required'
-        })
+        }
+    )
     
     submit = SubmitField(
         label='Submit',
         render_kw={
             'class':'btn btn-primary btn-block btn-flat'
-        })
+        }
+    )
 
     def validate_username(self, field):
         username=field.data
@@ -56,13 +59,111 @@ class TagForm(FlaskForm):
             'class':'form-control',
             'id':'input_name',
             'placeholder':'Please input tags'
-        })
+        }
+    )
 
     submit = SubmitField(
         label='Submit',
         render_kw={
             'class':'btn btn-primary'
-        })
+        }
+    )
+
+class MovieForm(FlaskForm):
+    title = StringField(
+        label='title',
+        validators=[DataRequired()],
+        description='Movie',
+        render_kw={
+            'class':'form-control',
+            'id':'input_title',
+            'placeholder':'Please input movie title'
+        }
+    )   
+
+    url = FileField(
+        label='url',
+        validators=[DataRequired()],
+        description='Movie files'
+    )
+
+    info = TextAreaField(
+        label='information',
+        validators=[DataRequired()],
+        description='Movie information',
+        render_kw={
+            'class':'form-control',
+            'row':10
+        }
+    )
+
+    logo = FileField(
+        label='logo',
+        validators=[DataRequired()],
+        description='Movie logo'
+        )
+
+    star = SelectField(
+        label='star',
+        validators=[DataRequired()],
+        coerce=int,
+        choices=[(1, '1星'), (2, '2星'), (3, '3星'), (4, '4星'), (5, '5星')],
+        description='Movie star',
+        render_kw={
+            'class':'form-control'
+        }
+    )
+
+    tag_id = SelectField(
+        label='tag',
+        validators=[DataRequired()],
+        coerce=int,
+        #choices=[ (v.id, v.name) for v in Tag.query.all() ],
+        description='Movie tag',
+        render_kw={
+            'class':'form-control'
+        }
+    )
+
+    area = StringField(
+        label='area',
+        validators=[DataRequired()],
+        description='Movie area',
+        render_kw={
+            'class':'form-control',
+            'placeholder':'Please input movie area'
+        }
+    )
+
+    length = StringField(
+        label='length',
+        validators=[DataRequired()],
+        description='Movie length',
+        render_kw={
+            'class':'form-control',
+            'placeholder':'Please input movie length'
+        }
+    )
+
+    release_time = StringField(
+        label='release_time',
+        validators=[DataRequired()],
+        description='Movie release time',
+        render_kw={
+            'class': 'form-control',
+            'placeholder': 'Please choose movie release time',
+            'id': 'input_release_time'
+        }
+    )
+
+    submit = SubmitField(
+        label='Submit',
+        render_kw={
+            'class':'btn btn-primary'
+        }
+    )
+    
+    
 
 class UserdetailForm(FlaskForm):
     name = StringField()
