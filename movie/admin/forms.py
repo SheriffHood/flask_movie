@@ -4,7 +4,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, FileField, TextAreaField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Email, Regexp, EqualTo, ValidationError, Length
-from movie.models import User, Admin, Tag
+from movie.models import User, Admin
 
 class RegisterForm(FlaskForm):
     name = StringField('Username', [DataRequired(), Length(max=25)])
@@ -118,7 +118,7 @@ class MovieForm(FlaskForm):
         label='tag',
         validators=[DataRequired()],
         coerce=int,
-        #choices=[ (v.id, v.name) for v in Tag.query.all() ],
+        #choices="",
         description='Movie tag',
         render_kw={
             'class':'form-control'

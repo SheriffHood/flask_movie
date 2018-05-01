@@ -9,21 +9,18 @@ from movie.extensions import csrf
 from movie.models import db
 
 
-def create_app(object_name):
 
-    app = Flask(__name__)
-    app.config.from_object(object_name)
+app = Flask(__name__)
+app.config.from_object(DevConfig)
     
-    with app.app_context():
-        db.init_app(app)
+with app.app_context():
+    db.init_app(app)
 
-    csrf.init_app(app)
+csrf.init_app(app)
     
-    app.register_blueprint(admin_blueprint, url_prefix='/admin')
-    app.register_blueprint(home_blueprint)
+app.register_blueprint(admin_blueprint, url_prefix='/admin')
+app.register_blueprint(home_blueprint)
 
-    @app.errorhandler(404)
-    def page_not_found(error):
-        return render_template('home/404.html'), 404
-
-    return app
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('home/404.html'), 404

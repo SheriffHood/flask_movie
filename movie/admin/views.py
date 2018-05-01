@@ -119,9 +119,9 @@ def tag_edit(id=None):
 def movie_add():
     
     form = MovieForm()
-    if request.method == 'GET':
-        form.tag_id.choices = [(v.id, v.name) for v in Tag.query.all()]
-
+    if request.method == "GET":
+        form.tag_id.choices = [(v.id,v.name) for v in Tag.query.all ()]
+        
     if form.validate_on_submit():
         data = form.data
 
@@ -179,6 +179,7 @@ def movie_list(page=None):
 @admin_login_required
 def movie_del(id=None):
    movie = Movie.query.get_or_404(int(id))
+
    db.session.delete(movie)
    db.session.commit()
 

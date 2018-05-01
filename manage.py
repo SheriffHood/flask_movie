@@ -4,13 +4,8 @@
 import os
 from flask_script import Manager, Shell, Server
 from flask_migrate import Migrate, MigrateCommand
-from movie import create_app
+from movie import app
 from movie.models import db, User, Userlog, Tag, Movie, Preview, Comment, Moviecol, Auth, Role, Admin, Adminlog, Oplog
-
-
-env = os.environ.get('BLOG_ENV', 'dev')
-
-app = create_app('settings.%sConfig' % env.capitalize())
 
 manager = Manager(app)
 migrate = Migrate(app, db)
