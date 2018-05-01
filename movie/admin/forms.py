@@ -159,7 +159,7 @@ class MovieForm(FlaskForm):
     submit = SubmitField(
         label='Submit',
         render_kw={
-            'class':'btn btn-primary'
+            'class':'btn btn-primary',
         }
     )
     

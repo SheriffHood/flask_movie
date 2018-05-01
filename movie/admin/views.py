@@ -3,19 +3,20 @@
 
 import os, uuid, datetime
 from movie.admin import admin_blueprint
-from flask import render_template, redirect, url_for, flash, session, request
+from flask import render_template, redirect, url_for, flash, session, request, current_app
 from movie.admin.forms import LoginForm, TagForm, MovieForm
 from movie.models import Admin, Tag, Movie
 from functools import wraps
 from movie.models import db
 from werkzeug.utils import secure_filename
 #from flask_movie import settings
-from movie import app
+#from movie import app
 
 
 def change_filename(filename):
     fileinfo = os.path.splitext(filename)
     filename = datetime.datetime.now().strftme("%Y%m%d%H%M%S") + str(uuid.uuid4().hex) + fileinfo[-1]
+
     return filename
 
 
@@ -24,7 +25,9 @@ def admin_login_required(func):
     def decorator_func(*args, **kargs):
         if 'admin' not in session:
             return redirect( url_for('admin.login', next=request.url) )
+            
         return func(*args, **kargs)
+
     return decorator_func
 
 @admin_blueprint.route('/')
@@ -116,38 +119,45 @@ def tag_edit(id=None):
 def movie_add():
     form = MovieForm()
     if request.method == 'GET':
-        form.tag_id.choices = [ (v.id, v.name) for v in Tag.query.all() ]
+        form.tag_id.choices = [(v.id, v.name) for v in Tag.query.all()]
 
     if form.validate_on_submit():
         data = form.data
-        file_url = secure_filename(form.url.data.filename)
-        file_logo = secure_filename(form.url.logo.filename)
 
-        if not os.path.exists(app.config[UPLOAD_PATH]):
-            os.makedirs(app.config[UPLOAD_PATH])
-            os.chmod(app.config[UPLOAD_PATH], 'rw')
-        url = change_filename(file_url)
-        logo = change_filename(file_logo)
-        form.url.data.save(app.config[UPLOAD_PATH]+url)
-        form.logo.data.save(app.config[UPLOAD_PATH]+logo)
+        if form.url.data.filename != "":
+            file_url = secure_filename(form.url.data.filename)
+            url = change_filename(file_url)
+            form.url.data.save(current_app.config['UPLOAD_PATH']+url)
 
+        if form.logo.data.filename != "":
+            file_logo = secure_filename(form.logo.data.filename)
+            logo = change_filename(file_logo)
+            form.logo.data.save(current_app.config['UPLOAD_PATH']+logo)
+
+        if not os.path.exists(current_app.config['UPLOAD_PATH']):
+            os.makedirs(current_app.config['UPLOAD_PATH'])
+            os.chmod(current_app.config['UPLOAD_PATH'], 'rw')        
+    
         movie = Movie(
             title = data['title'],
             url = url,
             info = data['info'],
             logo = logo,
-            star = data['star'],
+            star = int(data['star']),
             playnum = 0,
             commentnum = 0,
-            tag_id = data['tag_id'],
+            tag_id = int(data['tag_id']),
             area = data['area'],
             release_time = data['release_time'],
             length = data['lenght']
         )
+
         db.session.add(movie)
         db.session.commit()
         flash('Add movie successfully', 'ok')
+
         return redirect( url_for('admin.movie_add') )
+
     return render_template('admin/movie_add.html', form=form)
 
 @admin_blueprint.route('/movie/list/')
