@@ -2,10 +2,9 @@
 #-*- coding:utf-8 -*-
 
 from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash
 
-db = SQLAlchemy()
+from movie import db
 
 class User(db.Model):
 

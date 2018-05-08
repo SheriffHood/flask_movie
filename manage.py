@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 #-*- coding:utf-8 -*-
 
-import os
 from flask_script import Manager, Shell, Server
 from flask_migrate import Migrate, MigrateCommand
 from movie import app

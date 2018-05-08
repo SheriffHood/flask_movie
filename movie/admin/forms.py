@@ -4,7 +4,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, FileField, TextAreaField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Email, Regexp, EqualTo, ValidationError, Length
-from movie.models import User, Admin
+from movie.models import User, Admin, Tag
 
 class RegisterForm(FlaskForm):
     name = StringField('Username', [DataRequired(), Length(max=25)])
@@ -73,72 +73,74 @@ class MovieForm(FlaskForm):
     title = StringField(
         label='title',
         validators=[DataRequired()],
-        description='Movie',
+        description='title',
         render_kw={
             'class':'form-control',
             'id':'input_title',
-            'placeholder':'Please input movie title'
+            'placeholder':'Please input title'
         }
     )   
 
     url = FileField(
         label='url',
-        validators=[DataRequired()],
-        description='Movie files'
+        validators=[DataRequired('Please upload files')],
+        description='url'
     )
 
     info = TextAreaField(
-        label='information',
-        validators=[DataRequired()],
-        description='Movie information',
+        label='info',
+        validators=[DataRequired('Please input movie info')],
+        description='info',
         render_kw={
             'class':'form-control',
-            'row':10
+            'rows':10
         }
     )
 
     logo = FileField(
         label='logo',
-        validators=[DataRequired()],
-        description='Movie logo'
+        validators=[DataRequired('Please upload logo')],
+        description='logo'
         )
 
     star = SelectField(
         label='star',
-        validators=[DataRequired()],
+        validators=[DataRequired('Please select star')],
         coerce=int,
         choices=[(1, '1星'), (2, '2星'), (3, '3星'), (4, '4星'), (5, '5星')],
-        description='Movie star',
+        description='star',
         render_kw={
             'class':'form-control'
         }
     )
 
     tag_id = SelectField(
-        label='tag',
-        validators=[DataRequired()],
+        label="label",
+        validators=[
+            DataRequired("Please select tag！")
+        ],
         coerce=int,
-        #choices="",
-        description='Movie tag',
+        choices=[(v.id, v.name) for v in Tag.query.all()],
+        description="label",
         render_kw={
-            'class':'form-control'
+            "class": "form-control",
         }
     )
 
     area = StringField(
         label='area',
-        validators=[DataRequired()],
-        description='Movie area',
+        validators=[DataRequired('Please input area')],
+        description='area',
         render_kw={
             'class':'form-control',
-            'placeholder':'Please input movie area'
+            'placeholder':'Please input area'
         }
     )
 
     length = StringField(
         label='length',
-        validators=[DataRequired()],
-        description='Movie length',
+        validators=[DataRequired('Please inupt length')],
+        description='length',
         render_kw={
             'class':'form-control',
             'placeholder':'Please input movie length'
@@ -147,8 +149,8 @@ class MovieForm(FlaskForm):
 
     release_time = StringField(
         label='release_time',
-        validators=[DataRequired()],
-        description='Movie release time',
+        validators=[DataRequired('Please select release time')],
+        description='release_time',
         render_kw={
             'class': 'form-control',
             'placeholder': 'Please choose movie release time',
@@ -163,8 +165,6 @@ class MovieForm(FlaskForm):
         }
     )
     
-    
-
 class UserdetailForm(FlaskForm):
     name = StringField()
     email = StringField()
