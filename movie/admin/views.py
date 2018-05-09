@@ -122,33 +122,32 @@ def movie_add():
 
         file_url = secure_filename(form.url.data.filename)
         file_logo = secure_filename(form.logo.data.filename)
-        if not os.path.exists(app.config["UPLOAD_PATH"]):
-            os.makedirs(app.config["UPLOAD_PATH"])
-            os.chmod(app.config["UPLOAD_PATH"], 6)
+        if not os.path.exists(app.config['UPLOAD_PATH']):
+            os.makedirs(app.config['UPLOAD_PATH'])
+            os.chmod(app.config['UPLOAD_PATH'], 6)
         url = change_filename(file_url)
         logo = change_filename(file_logo)
-        form.url.data.save(app.config["UPLOAD_PATH"] + url)
-        form.logo.data.save(app.config["UPLOAD_PATH"] + logo)        
+        form.url.data.save(app.config['UPLOAD_PATH'] + url)
+        form.logo.data.save(app.config['UPLOAD_PATH'] + logo)        
     
         movie = Movie(
-            title=data['title']
+            title=data['title'],
+            url=url,
+            info=data['info'],
+            logo=logo,
+            star=int(data['star']),
+            playnum=0,
+            commentnum=0,
+            tag_id=int(data['tag_id']),
+            area=data['area'],
+            release_time=data['release_time'],
+            length=data['length']
         )
-        movie.url=url
-        movie.info=data['info']
-        movie.logo=logo,
-        movie.star=int(data['star'])
-        movie.playnum=0
-        movie.commentnum=0
-        movie.tag_id=int(data['tag_id'])
-        movie.area=data['area']
-        movie.release_time=data['release_time']
-        movie.length=data['length']
-        
         db.session.add(movie)
         db.session.commit()
-        flash("添加电影成功！", "ok")
+        flash('Add movie successfully', 'ok')
         return redirect(url_for('admin.movie_add'))
-    return render_template("admin/movie_add.html", form=form)
+    return render_template('admin/movie_add.html', form=form)
 
 @admin_blueprint.route('/movie/list/<int:page>/', methods=['GET', 'POST'])
 @admin_login_required
@@ -179,6 +178,7 @@ def movie_del(id=None):
 @admin_blueprint.route('/movie/edit/<int:id>/', methods=['GET', 'POST'])
 @admin_login_required
 def movie_edit(id=None):
+    
     form = MovieForm()
 
     form.url.validators = []
@@ -186,21 +186,21 @@ def movie_edit(id=None):
 
     movie = Movie.query.filter_by(id=id).first_or_404()
 
-    if request.method == "GET":
+    if request.method == 'GET':
         form.info.data = movie.info
         form.tag_id.data = movie.tag_id
         form.star.data = movie.star
 
     if form.validate_on_submit():
         data = form.data
-        movie_count = Movie.query.filter_by(title=data["title"]).count()
+        movie_count = Movie.query.filter_by(title=data['title']).count()
         if movie_count == 1 and movie.title != data["title"]: 
-            flash("Already exists！", "err") 
+            flash('Already exists!', 'err') 
             return redirect(url_for('admin.movie_edit', id=id))
 
         if not os.path.exists(current_app.config['UPLOAD_PATH']):
             os.makedirs(current_app.config['UPLOAD_PATH'])
-            os.chmod(current_app.config['UPLOAD_PATH'], 'rw')
+            os.chmod(current_app.config['UPLOAD_PATH'], 6)
 
         if form.url.data.filename != "":
             file_url = secure_filename(form.url.data.filename)
@@ -212,19 +212,19 @@ def movie_edit(id=None):
             movie.logo = change_filename(file_logo)       
             form.logo.data.save(current_app.config['UPLOAD_PATH']+movie.logo) 
 
-        movie.star = data["star"] 
-        movie.tag_id = data["tag_id"] 
-        movie.info = data["info"] 
-        movie.title = data["title"] 
-        movie.area = data["area"] 
-        movie.length = data["length"] 
-        movie.release_time = data["release_time"]
+        movie.star = data['star'] 
+        movie.tag_id = data['tag_id'] 
+        movie.info = data['info'] 
+        movie.title = data['title'] 
+        movie.area = data['area'] 
+        movie.length = data['length'] 
+        movie.release_time = data['release_time']
 
         db.session.add(movie) 
         db.session.commit()
 
         flash('Edit Movie successfully', 'ok')
-        return redirect( url_for('admin.movie_edit', id=movie.id) )
+        return redirect( url_for('admin.movie_edit', id=id) )
     return render_template('admin/movie_edit.html', form=form, movie=movie)
 
 @admin_blueprint.route('/preview/add/')

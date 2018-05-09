@@ -53,13 +53,13 @@ class Tag(db.Model):
     name = db.Column(db.String(100), unique=True)
     addtime = db.Column(db.DateTime, index=True, default=datetime.now)
 
-    movies = db.relationship('Movie', backref='tag', lazy=True)
+    movies = db.relationship('Movie', backref='tag')
 
     def __init__(self, name):
         self.name = name
 
     def __repr__(self):
-        return '<Tag %r>' % self.title
+        return '<Tag %r>' % self.name
 
 class Movie(db.Model):
 
@@ -82,8 +82,17 @@ class Movie(db.Model):
     comments = db.relationship('Comment', backref='movie')
     moviecols = db.relationship('Moviecol', backref='movie')
 
-    def __init__(self, title):
+    def __init__(self, title, url, info, logo, star, playnum, commentnum, tag_id, area, release_time, length):
         self.title = title
+        self.url = url
+        self.logo = logo
+        self.star = star
+        self.playnum = playnum
+        self.commentnum = commentnum
+        self.tag_id = tag_id
+        self.area = area
+        self.release_time = release_time
+        self.length = length
 
     def __repr__(self):
         return '<Movie %r>' % self.title
