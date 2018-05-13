@@ -106,8 +106,9 @@ class Preview(db.Model):
     logo = db.Column(db.String(255), unique=True)
     addtime = db.Column(db.DateTime, index=True, default=datetime.now)
 
-    def __init__(self, title):
+    def __init__(self, title, logo):
         self.title = title
+        self.logo = logo
 
     def __repr__(self):
         return '<Preview %r>' % self.title

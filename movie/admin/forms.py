@@ -164,7 +164,32 @@ class MovieForm(FlaskForm):
             'class':'btn btn-primary',
         }
     )
-    
+
+class PreviewForm(FlaskForm):
+
+    title = StringField(
+        label='title',
+        validators=[DataRequired('Please input title')],
+        description='title',
+        render_kw={
+            'class':'form-control',
+            'placeholder':'preview title'
+        }
+    )
+
+    logo = FileField(
+        label='logo',
+        validators=[DataRequired('Please upload preview logo')],
+        description='logo',
+    )
+
+    submit = SubmitField(
+        label='Submit',
+        render_kw={
+            'class':'btn btn-primary',
+        }
+    )
+
 class UserdetailForm(FlaskForm):
     name = StringField()
     email = StringField()

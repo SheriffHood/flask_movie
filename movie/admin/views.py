@@ -5,8 +5,8 @@ import os, uuid
 from datetime import datetime
 from movie.admin import admin_blueprint
 from flask import render_template, redirect, url_for, flash, session, request, current_app
-from movie.admin.forms import LoginForm, TagForm, MovieForm
-from movie.models import Admin, Tag, Movie
+from movie.admin.forms import LoginForm, TagForm, MovieForm, PreviewForm
+from movie.models import Admin, Tag, Movie, Preview
 from functools import wraps
 from movie import app, db
 from werkzeug.utils import secure_filename
@@ -227,10 +227,31 @@ def movie_edit(id=None):
         return redirect( url_for('admin.movie_edit', id=id) )
     return render_template('admin/movie_edit.html', form=form, movie=movie)
 
-@admin_blueprint.route('/preview/add/')
+@admin_blueprint.route('/preview/add/', methods=['GET', 'POST'])
 @admin_login_required
 def preview_add():
-    return render_template('admin/preview_add.html')
+
+    form = PreviewForm()
+    if form.validate_on_submit():
+        data = form.data
+        file_logo = secure_filename(form.logo.data)
+        if not os.path.exists(app.config['UPLOAD_PATH']):
+            os.makedirs(app.config['UPLOAD_PATH'])
+            os.chmod(app.config['UPLOAD_PATH'], 6)
+
+        logo = change_filename(file_logo)
+        form.logo.data.save(app.config['UPLOAD_PATH'] + logo)
+
+        preview = Preview(
+            title = data['title'],
+            logo = logo        
+        )
+
+        db.session.add(preview)
+        db.session.commit()
+        flash('Add preview successfully!', 'ok')
+        return redirect( url_for('admin.preview_add') )    
+    return render_template('admin/preview_add.html', form=form)
 
 @admin_blueprint.route('/preview/list')
 @admin_login_required
