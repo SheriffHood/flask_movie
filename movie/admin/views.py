@@ -6,7 +6,7 @@ from datetime import datetime
 from movie.admin import admin_blueprint
 from flask import render_template, redirect, url_for, flash, session, request, current_app
 from movie.admin.forms import LoginForm, TagForm, MovieForm, PreviewForm
-from movie.models import Admin, Tag, Movie, Preview
+from movie.models import Admin, Tag, Movie, Preview, User
 from functools import wraps
 from movie import app, db
 from werkzeug.utils import secure_filename
@@ -303,15 +303,36 @@ def preview_list(page=None):
 
     return render_template('admin/preview_list.html', page_data=page_data)
 
-@admin_blueprint.route('/user/list/')
+@admin_blueprint.route('/user/list/<int:page>', methods=['GET', 'POST'])
 @admin_login_required
-def user_list():
-    return render_template('admin/user_list.html')
+def user_list(page=None):
+    
+    if page is None:
+        page = 1
+    page_data = User.query.order_by(
+        User.addtime.desc()
+    ).paginate(page=page, per_page=10)
 
-@admin_blueprint.route('/user/view/')
+    return render_template('admin/user_list.html', page_data=page_data)
+
+@admin_blueprint.route('/user/del/<int:id>', methods=['GET', 'POST'])
 @admin_login_required
-def user_view():
-    return render_template('admin/user_view.html')
+def user_del(id=None):
+    
+   user = User.query.get_or_404(int(id))
+
+   db.session.delete(user)
+   db.session.commit()
+
+   flash('Delete User successfully!', 'ok')
+   return redirect( url_for('admin.user_list', page=1) )
+
+
+@admin_blueprint.route('/user/view/<int:id>', methods=['GET', 'POST'])
+@admin_login_required
+def user_view(id=None):
+    user = User.query.get_or_404(int(id))
+    return render_template('admin/user_view.html', user=user)
 
 @admin_blueprint.route('/comment/list/')
 @admin_login_required
