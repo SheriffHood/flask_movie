@@ -234,7 +234,7 @@ def preview_add():
     form = PreviewForm()
     if form.validate_on_submit():
         data = form.data
-        file_logo = secure_filename(form.logo.data)
+        file_logo = secure_filename(form.logo.data.filename)
         if not os.path.exists(app.config['UPLOAD_PATH']):
             os.makedirs(app.config['UPLOAD_PATH'])
             os.chmod(app.config['UPLOAD_PATH'], 6)
@@ -253,10 +253,55 @@ def preview_add():
         return redirect( url_for('admin.preview_add') )    
     return render_template('admin/preview_add.html', form=form)
 
-@admin_blueprint.route('/preview/list')
+@admin_blueprint.route('/preview/del/<int:id>/', methods=['GET', 'POST'])
 @admin_login_required
-def preview_list():
-    return render_template('admin/preview_list.html')
+def preview_del(id=None):
+   preview = Preview.query.get_or_404(int(id))
+
+   db.session.delete(preview)
+   db.session.commit()
+
+   flash('Delete Preview successfully!', 'ok')
+   return redirect( url_for('admin.preview_list', page=1) )
+
+@admin_blueprint.route('/preview/edit/<int:id>', methods=['GET', 'POST'])
+@admin_login_required
+def preview_edit(id=None):
+
+    form = PreviewForm()
+    preview = Preview.query.get_or_404(int(id))
+
+    if request.method == 'GET':
+        form.title.data = preview.title
+
+    if form.validate_on_submit():
+        data = form.data
+        
+        if form.logo.data.filename != "":
+            file_logo = secure_filename(form.logo.data.filename)
+            preview.logo = change_filename(file_logo)       
+            form.logo.data.save(current_app.config['UPLOAD_PATH']+preview.logo) 
+
+        preview.title = data['title']
+
+        db.session.add(preview)
+        db.session.commit()
+        flash('Edit preview successfully!', 'ok')
+        return redirect( url_for('admin.preview_edit', id=id) )    
+    return render_template('admin/preview_edit.html', form=form, preview=preview)
+
+@admin_blueprint.route('/preview/list/<int:page>', methods=['GET', 'POST'])
+@admin_login_required
+def preview_list(page=None):
+    
+    if page is None:
+        page = 1
+
+    page_data = Preview.query.order_by(
+        Preview.addtime.desc()
+    ).paginate(page=page, per_page=10)
+
+    return render_template('admin/preview_list.html', page_data=page_data)
 
 @admin_blueprint.route('/user/list/')
 @admin_login_required
