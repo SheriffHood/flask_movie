@@ -6,7 +6,7 @@ from datetime import datetime
 from movie.admin import admin_blueprint
 from flask import render_template, redirect, url_for, flash, session, request, current_app
 from movie.admin.forms import LoginForm, TagForm, MovieForm, PreviewForm
-from movie.models import Admin, Tag, Movie, Preview, User
+from movie.models import Admin, Tag, Movie, Preview, User, Comment, Moviecol
 from functools import wraps
 from movie import app, db
 from werkzeug.utils import secure_filename
@@ -327,22 +327,73 @@ def user_del(id=None):
    flash('Delete User successfully!', 'ok')
    return redirect( url_for('admin.user_list', page=1) )
 
-
 @admin_blueprint.route('/user/view/<int:id>', methods=['GET', 'POST'])
 @admin_login_required
 def user_view(id=None):
     user = User.query.get_or_404(int(id))
     return render_template('admin/user_view.html', user=user)
 
-@admin_blueprint.route('/comment/list/')
+@admin_blueprint.route('/comment/list/<int:page>', methods=['GET', 'POST'])
 @admin_login_required
-def comment_list():
-    return render_template('admin/comment_list.html')
+def comment_list(page=None):
 
-@admin_blueprint.route('/moviecol/list')
+    if page is None:
+        page = 1
+    page_data = Comment.query.join(
+        Movie    
+    ).join(
+        User
+    ).filter(
+        Movie.id == Comment.movie_id,
+        User.id == Comment.user_id
+    ).order_by(
+        Comment.addtime.desc()
+    ).paginate(page=page, per_page=10)
+
+    return render_template('admin/comment_list.html', page_data=page_data)
+
+@admin_blueprint.route('/comment/del/<int:id>', methods=['GET', 'POST'])
 @admin_login_required
-def moviecol_list():
-    return render_template('admin/moviecol_list.html')
+def comment_del(id=None):
+    
+   comment = Comment.query.get_or_404(int(id))
+
+   db.session.delete(comment)
+   db.session.commit()
+
+   flash('Delete comment successfully!', 'ok')
+   return redirect( url_for('admin.comment_list', page=1) )
+
+@admin_blueprint.route('/moviecol/list/<int:page>', methods=['GET', 'POST'])
+@admin_login_required
+def moviecol_list(page=None):
+    
+    if page is None:
+        page = 1
+    page_data = Moviecol.query.join(
+        Movie    
+    ).join(
+        User
+    ).filter(
+        Movie.id == Moviecol.movie_id,
+        User.id == Moviecol.user_id
+    ).order_by(
+        Moviecol.addtime.desc()
+    ).paginate(page=page, per_page=10)
+
+    return render_template('admin/moviecol_list.html', page_data=page_data)
+
+@admin_blueprint.route('/moviecol/del/<int:id>', methods=['GET', 'POST'])
+@admin_login_required
+def moviecol_del(id=None):
+    
+   moviecol = Moviecol.query.get_or_404(int(id))
+
+   db.session.delete(moviecol)
+   db.session.commit()
+
+   flash('Delete movie collection successfully!', 'ok')
+   return redirect( url_for('admin.moviecol_list', page=1) )
 
 @admin_blueprint.route('/oplog/list')
 @admin_login_required
