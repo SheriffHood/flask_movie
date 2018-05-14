@@ -5,10 +5,11 @@ import os, uuid
 from datetime import datetime
 from movie.admin import admin_blueprint
 from flask import render_template, redirect, url_for, flash, session, request, current_app
-from movie.admin.forms import LoginForm, TagForm, MovieForm, PreviewForm
+from movie.admin.forms import LoginForm, TagForm, MovieForm, PreviewForm, PwdForm
 from movie.models import Admin, Tag, Movie, Preview, User, Comment, Moviecol
 from functools import wraps
 from movie import app, db
+#from movie.models import 
 from werkzeug.utils import secure_filename
 
 def change_filename(filename):
@@ -40,7 +41,7 @@ def login():
         data = form.data
         admin = Admin.query.filter_by(name=data['name']).first()
         if not admin.check_pwd(data['pwd']):
-            flash('wrong password')
+            flash('wrong password', 'err')
             return redirect( url_for('admin.login') )
         session['admin'] = data['name']
         return redirect(request.args.get('next') or url_for('admin.index'))
@@ -50,12 +51,24 @@ def login():
 @admin_login_required
 def logout():
     session.pop('admin', None)
-    return redirect( url_for('admin/login.html') )
+    return redirect( url_for('admin.login') )
 
-@admin_blueprint.route('/password/')
+@admin_blueprint.route('/password/', methods=['GET', 'POST'])
 @admin_login_required
 def password():
-    return render_template('admin/password.html')
+    
+    form = PwdForm()
+    if form.validate_on_submit():
+        data = form.data
+        admin = Admin.query.filter_by(name=session['admin']).first()
+        from werkzeug.security import generate_password_hash
+        admin.pwd = generate_password_hash(data['new_password'])
+
+        db.session.add(admin)
+        db.session.commit()
+        flash('Change password successfully!', 'ok')
+        return redirect(url_for('admin.logout'))
+    return render_template('admin/password.html', form=form)
 
 @admin_blueprint.route('/tag/add/', methods=['GET', 'POST'])
 @admin_login_required

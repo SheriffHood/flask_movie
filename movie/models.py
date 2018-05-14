@@ -199,8 +199,8 @@ class Admin(db.Model):
         return '<Admin %r>' % self.name
         
     def check_pwd(self, pwd):
-        if self.pwd == pwd:
-            return True;
+        from werkzeug.security import check_password_hash
+        return check_password_hash(self.pwd, pwd)
 
 class Adminlog(db.Model):
     

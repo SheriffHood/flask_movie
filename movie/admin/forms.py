@@ -199,9 +199,41 @@ class UserdetailForm(FlaskForm):
     submit = SubmitField()
 
 class PwdForm(FlaskForm):
-    old_password = PasswordField()
-    new_password = PasswordField()
-    submit = SubmitField()
+    old_password = PasswordField(
+        label='old password',
+        validators=[DataRequired('Please input old password')],
+        description='old_password',
+        render_kw={
+            'class':'form-control',
+            'placeholder':'Please input old password'
+        }
+    )
+    new_password = PasswordField(
+        label='new password',
+        validators=[DataRequired('Please input new password')],
+        description='new_password',
+        render_kw={
+            'class':'form-control',
+            'placeholder':'Please input new password'
+        }
+    )
+
+    submit = SubmitField(
+        label='Submit',
+        render_kw={
+            'class':'btn btn-primary',
+        }
+    )
+
+    def validate_old_password(self, field):
+        from flask import session
+        password = field.data
+        name = session['admin']
+        admin = Admin.query.filter_by(
+            name=name
+        ).first()
+        if not admin.check_pwd(password):
+            raise ValidationError('wrong old password')
 
 class CommentForm(FlaskForm):
     name = StringField('Username', validators=[DataRequired(), Length(max=255)])
