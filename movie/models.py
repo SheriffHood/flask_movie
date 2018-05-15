@@ -39,9 +39,6 @@ class Userlog(db.Model):
     ip = db.Column(db.String(255))
     loggin_time = db.Column(db.DateTime, index=True, default=datetime.now)
 
-    def __init__(self, id):
-        self.id = id
-
     def __repr__(self):
         return '<Userlog %r>' % self.id
 
@@ -212,9 +209,6 @@ class Adminlog(db.Model):
 
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
 
-    def __init__(self, id):
-        self.id = id
-
     def __repr__(self):
         return '<Adminlog %r>' % self.id
 
@@ -228,9 +222,6 @@ class Oplog(db.Model):
     reason = db.Column(db.String(600))
 
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
-
-    def __init__(self, id):
-        self.id = id
 
     def __repr__(self):
         return '<Oplog %r>' % self.id

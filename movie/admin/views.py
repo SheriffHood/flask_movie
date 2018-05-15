@@ -6,11 +6,18 @@ from datetime import datetime
 from movie.admin import admin_blueprint
 from flask import render_template, redirect, url_for, flash, session, request, current_app
 from movie.admin.forms import LoginForm, TagForm, MovieForm, PreviewForm, PwdForm
-from movie.models import Admin, Tag, Movie, Preview, User, Comment, Moviecol
+from movie.admin import admin_blueprint
+from movie.models import Admin, Tag, Movie, Preview, User, Comment, Moviecol, Userlog, Oplog, Adminlog
 from functools import wraps
 from movie import app, db
-#from movie.models import 
 from werkzeug.utils import secure_filename
+
+@admin_blueprint.context_processor
+def tpl_extra():
+    data = dict(
+        online_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    )
+    return data
 
 def change_filename(filename):
     fileinfo = os.path.splitext(filename)
@@ -44,6 +51,15 @@ def login():
             flash('wrong password', 'err')
             return redirect( url_for('admin.login') )
         session['admin'] = data['name']
+        session['admin_id'] = admin.id
+
+        adminlog = Adminlog(
+            admin_id = admin.id,
+            ip = request.remote_addr
+        )
+        db.session.add(adminlog)
+        db.session.commit()
+        
         return redirect(request.args.get('next') or url_for('admin.index'))
     return render_template('admin/login.html', form=form)
 
@@ -51,6 +67,7 @@ def login():
 @admin_login_required
 def logout():
     session.pop('admin', None)
+    session.pop('admin_id', None)
     return redirect( url_for('admin.login') )
 
 @admin_blueprint.route('/password/', methods=['GET', 'POST'])
@@ -83,7 +100,15 @@ def tag_add():
         tag = Tag(name = data['name'])
         db.session.add(tag)
         db.session.commit()
-        flash('Create Tag successfully', 'ok')
+
+        oplog = Oplog(
+            admin_id = session['admin_id'],
+            ip = request.remote_addr,
+            reason = 'Add Tag %s' % data['name']
+        )
+        db.session.add(oplog)
+        db.session.commit()
+        flash('Add Tag successfully', 'ok')
         return redirect( url_for('admin.tag_add') )
     return render_template('admin/tag_add.html', form=form)
 
@@ -408,20 +433,51 @@ def moviecol_del(id=None):
    flash('Delete movie collection successfully!', 'ok')
    return redirect( url_for('admin.moviecol_list', page=1) )
 
-@admin_blueprint.route('/oplog/list')
+@admin_blueprint.route('/oplog/list/<int:page>', methods=['GET', 'POST'])
 @admin_login_required
-def oplog_list():
-    return render_template('admin/oplog_list.html')
+def oplog_list(page=None):
+    
+    if page is None:
+        page = 1
 
-@admin_blueprint.route('/adminloginlog/list')
-@admin_login_required
-def adminloginlog_list():
-    return render_template('admin/adminloginlog_list.html')
+    page_data = Oplog.query.join(
+        Admin
+    ).filter(
+        Admin.id == Oplog.admin_id,
+    ).order_by(
+        Oplog.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template('admin/oplog_list.html', page_data=page_data)
 
-@admin_blueprint.route('/userloginlog/list')
+@admin_blueprint.route('/adminloginlog/list/<int:page>', methods=['GET', 'POST'])
 @admin_login_required
-def userloginlog_list():
-    return render_template('admin/userloginlog_list.html')
+def adminloginlog_list(page=None):
+    if page is None:
+        page = 1
+
+    page_data = Adminlog.query.join(
+        Admin
+    ).filter(
+        Admin.id == Adminlog.admin_id,
+    ).order_by(
+        Adminlog.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template('admin/adminloginlog_list.html', page_data=page_data)
+
+@admin_blueprint.route('/userloginlog/list/<int:page>', methods=['GET', 'POST'])
+@admin_login_required
+def userloginlog_list(page=None):
+    if page is None:
+        page = 1
+
+    page_data = Userlog.query.join(
+        User
+    ).filter(
+        User.id == Userlog.user_id,
+    ).order_by(
+        Userlog.loggin_time.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template('admin/userloginlog_list.html', page_data=page_data)
 
 @admin_blueprint.route('/role/add/')
 @admin_login_required
