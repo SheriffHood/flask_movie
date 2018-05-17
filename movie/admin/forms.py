@@ -2,9 +2,9 @@
 #-*- coding:utf-8 -*-
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, FileField, TextAreaField, IntegerField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, FileField, TextAreaField, IntegerField, SelectField, SelectMultipleField
 from wtforms.validators import DataRequired, Email, Regexp, EqualTo, ValidationError, Length
-from movie.models import User, Admin, Tag
+from movie.models import User, Admin, Tag, Auth
 
 class RegisterForm(FlaskForm):
     name = StringField('Username', [DataRequired(), Length(max=25)])
@@ -255,13 +255,44 @@ class AuthForm(FlaskForm):
             'placeholder':'Please input auth url'
         }
     )
+
     submit = SubmitField(
         label='Submit',
         render_kw={
             'class':'btn btn-primary'
         }
     )
-    
+
+class RoleForm(FlaskForm):
+    name = StringField(
+        label='name',
+        validators=[DataRequired('Please input role name')],
+        description='Role_name',
+        render_kw={
+            'class':'form-control',
+            'placeholder':'Please input role name'
+        }
+    )
+
+    auths = SelectMultipleField(
+        label='auths',
+        validators=[DataRequired('Please select auths list')],
+        description='auth_list',
+        coerce=int,
+        choices=[(v.id, v.name) for v in Auth.query.all(  )], 
+        render_kw={
+            'class':'form=control'
+        }
+    )
+
+    submit = SubmitField(
+        label='Submit',
+        render_kw={
+            'class':'btn btn-primary'
+        }
+    )
+
+
 class CommentForm(FlaskForm):
     name = StringField('Username', validators=[DataRequired(), Length(max=255)])
     content = TextAreaField('Comment', validators=[DataRequired()])

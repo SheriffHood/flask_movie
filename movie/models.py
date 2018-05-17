@@ -169,6 +169,9 @@ class Role(db.Model):
 
     admins = db.relationship('Admin', backref='role')
 
+    def __repr__(self):
+        return '<Role %r>' % self.name
+
 
 class Admin(db.Model):
     

@@ -5,9 +5,9 @@ import os, uuid
 from datetime import datetime
 from movie.admin import admin_blueprint
 from flask import render_template, redirect, url_for, flash, session, request, current_app
-from movie.admin.forms import LoginForm, TagForm, MovieForm, PreviewForm, PwdForm, AuthForm
+from movie.admin.forms import LoginForm, TagForm, MovieForm, PreviewForm, PwdForm, AuthForm, RoleForm
 from movie.admin import admin_blueprint
-from movie.models import Admin, Tag, Movie, Preview, User, Comment, Moviecol, Userlog, Oplog, Adminlog, Auth
+from movie.models import Admin, Tag, Movie, Preview, User, Comment, Moviecol, Userlog, Oplog, Adminlog, Auth, Role
 from functools import wraps
 from movie import app, db
 from werkzeug.utils import secure_filename
@@ -479,15 +479,64 @@ def userloginlog_list(page=None):
     ).paginate(page=page, per_page=10)
     return render_template('admin/userloginlog_list.html', page_data=page_data)
 
-@admin_blueprint.route('/role/add/')
+@admin_blueprint.route('/role/add/', methods=['GET', 'POST'])
 @admin_login_required
 def role_add():
-    return render_template('admin/role_add.html')
 
-@admin_blueprint.route('/role/list/')
+    form = RoleForm()
+    if form.validate_on_submit():
+        data = form.data
+        role = Role(
+            name = data['name'],
+            auths = ", ".join( map(lambda v:str(v), data['auths']) )
+        )
+        db.session.add(role)
+        db.session.commit()
+        flash('Add role successfully!', 'ok')
+    return render_template('admin/role_add.html', form=form)
+
+@admin_blueprint.route('/role/list/<int:page>', methods=['GET', 'POST'])
 @admin_login_required
-def role_list():
-    return render_template('admin/role_list.html')
+def role_list(page=None):
+    
+    if page is None:
+        page = 1
+    
+    page_data = Role.query.order_by(
+        Role.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template('admin/role_list.html', page_data=page_data)
+
+@admin_blueprint.route('/role/del/<int:id>/', methods=['GET', 'POST'])
+@admin_login_required
+def role_del(id=None):
+
+    role = Role.query.filter_by(id=id).first_or_404()
+    db.session.delete(role)
+    db.session.commit()
+    flash('Delete Role successfully', 'ok')
+    return redirect( url_for('admin.role_list', page=1) )     
+
+@admin_blueprint.route('/role/edit/<int:id>/', methods=['GET', 'POST'])
+@admin_login_required
+def role_edit(id=None):
+    
+    form = RoleForm()
+    role = Role.query.get_or_404(id)
+    if request.method == 'GET':
+        auths = role.auths
+        form.auths.data = list(map(lambda v: int(v), auths.split(",")))
+
+    if form.validate_on_submit():
+        data = form.data
+        role.name = data['name']
+        role.auths = ", ".join(map(lambda v:str(v), data['auths']))
+
+        db.session.add(role)
+        db.session.commit()
+        flash('Edit auth successfully!', 'ok')
+        return redirect( url_for('admin.auth_edit', id=id) )
+    return render_template('admin/role_edit.html', form=form, role=role)
 
 @admin_blueprint.route('/auth/add/', methods=['GET', 'POST'])
 @admin_login_required
