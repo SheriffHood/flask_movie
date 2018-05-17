@@ -152,8 +152,8 @@ class Auth(db.Model):
     url = db.Column(db.String(255), unique=True)
     addtime = db.Column(db.DateTime, index=True, default=datetime.now)
 
-    def __init__(self, name):
-        self.name = name
+    #def __init__(self, name):
+        #self.name = name
     
     def __repr_(self):
         return '<Auth %r>' % self.name

@@ -235,6 +235,33 @@ class PwdForm(FlaskForm):
         if not admin.check_pwd(password):
             raise ValidationError('wrong old password')
 
+class AuthForm(FlaskForm):
+    name = StringField(
+        label='name',
+        validators=[DataRequired('Please input auth name')],
+        description='Auth_name',
+        render_kw={
+            'class':'form-control',
+            'placeholder':'Please input auth name'
+        }
+    )
+
+    url = StringField(
+        label='url',
+        validators=[DataRequired('Please input auth url')],
+        description='url',
+        render_kw={
+            'class':'form-control',
+            'placeholder':'Please input auth url'
+        }
+    )
+    submit = SubmitField(
+        label='Submit',
+        render_kw={
+            'class':'btn btn-primary'
+        }
+    )
+    
 class CommentForm(FlaskForm):
     name = StringField('Username', validators=[DataRequired(), Length(max=255)])
     content = TextAreaField('Comment', validators=[DataRequired()])

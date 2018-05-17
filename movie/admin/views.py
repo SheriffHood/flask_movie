@@ -5,9 +5,9 @@ import os, uuid
 from datetime import datetime
 from movie.admin import admin_blueprint
 from flask import render_template, redirect, url_for, flash, session, request, current_app
-from movie.admin.forms import LoginForm, TagForm, MovieForm, PreviewForm, PwdForm
+from movie.admin.forms import LoginForm, TagForm, MovieForm, PreviewForm, PwdForm, AuthForm
 from movie.admin import admin_blueprint
-from movie.models import Admin, Tag, Movie, Preview, User, Comment, Moviecol, Userlog, Oplog, Adminlog
+from movie.models import Admin, Tag, Movie, Preview, User, Comment, Moviecol, Userlog, Oplog, Adminlog, Auth
 from functools import wraps
 from movie import app, db
 from werkzeug.utils import secure_filename
@@ -489,16 +489,61 @@ def role_add():
 def role_list():
     return render_template('admin/role_list.html')
 
-@admin_blueprint.route('/auth/add/')
+@admin_blueprint.route('/auth/add/', methods=['GET', 'POST'])
 @admin_login_required
 def auth_add():
-    return render_template('admin/auth_add.html')
-
-@admin_blueprint.route('/auth/list/')
-@admin_login_required
-def auth_list():
-    return render_template('admin/auth_list.html')
     
+    form = AuthForm()
+    if form.validate_on_submit():
+        data = form.data
+        auth = Auth(
+            name = data['name'],
+            url = data['url']
+        )
+        db.session.add(auth)
+        db.session.commit()
+        flash('Add auth successfully', 'ok')
+    return render_template('admin/auth_add.html', form=form)
+
+@admin_blueprint.route('/auth/list/<int:page>/', methods=['GET', 'POST'])
+@admin_login_required
+def auth_list(page=None):
+    
+    if page is None:
+        page = 1
+
+    page_data = Auth.query.order_by(
+        Auth.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template('admin/auth_list.html', page_data=page_data)
+
+@admin_blueprint.route('/auth/del/<int:id>/', methods=['GET', 'POST'])
+@admin_login_required
+def auth_del(id=None):
+
+    auth = Auth.query.filter_by(id=id).first_or_404()
+    db.session.delete(auth)
+    db.session.commit()
+    flash('Delete Auth successfully', 'ok')
+    return redirect( url_for('admin.auth_list', page=1) )     
+
+@admin_blueprint.route('/auth/edit/<int:id>/', methods=['GET', 'POST'])
+@admin_login_required
+def auth_edit(id=None):
+    
+    form = AuthForm()
+    auth = Auth.query.get_or_404(id)
+    if form.validate_on_submit():
+        data = form.data
+        auth.name = data['name']
+        auth.url = data['url']
+
+        db.session.add(auth)
+        db.session.commit()
+        flash('Edit auth successfully!', 'ok')
+        return redirect( url_for('admin.auth_edit', id=id) )
+    return render_template('admin/auth_edit.html', form=form, auth=auth)
+
 @admin_blueprint.route('/admin/add/')
 @admin_login_required
 def admin_add():
