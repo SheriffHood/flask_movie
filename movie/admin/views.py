@@ -5,7 +5,7 @@ import os, uuid
 from datetime import datetime
 from movie.admin import admin_blueprint
 from flask import render_template, redirect, url_for, flash, session, request, current_app
-from movie.admin.forms import LoginForm, TagForm, MovieForm, PreviewForm, PwdForm, AuthForm, RoleForm
+from movie.admin.forms import LoginForm, TagForm, MovieForm, PreviewForm, PwdForm, AuthForm, RoleForm, AdminForm
 from movie.admin import admin_blueprint
 from movie.models import Admin, Tag, Movie, Preview, User, Comment, Moviecol, Userlog, Oplog, Adminlog, Auth, Role
 from functools import wraps
@@ -593,12 +593,37 @@ def auth_edit(id=None):
         return redirect( url_for('admin.auth_edit', id=id) )
     return render_template('admin/auth_edit.html', form=form, auth=auth)
 
-@admin_blueprint.route('/admin/add/')
+@admin_blueprint.route('/admin/add/', methods=['GET', 'POST'])
 @admin_login_required
 def admin_add():
-    return render_template('admin/admin_add.html')
 
-@admin_blueprint.route('/admin/list')
+    form = AdminForm()
+    from werkzeug.security import generate_password_hash
+    if form.validate_on_submit():
+        data = form.data
+        admin = Admin(
+            name=data['name'],
+            pwd=generate_password_hash(data['pwd']),
+            role_id=data['role_id'],
+            is_super=1
+        )
+        db.session.add(admin)
+        db.session.commit()
+        flash('Add admin successfully!', 'ok')
+    return render_template('admin/admin_add.html', form=form)
+
+@admin_blueprint.route('/admin/list/<int:page>', methods=['GET', 'POST'])
 @admin_login_required
-def admin_list():
-    return render_template('/admin/admin_list.html')
+def admin_list(page=None):
+
+    if page is None:
+        page = 1
+
+    page_data = Admin.query.join(
+        Role
+    ).filter(
+        Role.id == Admin.role_id
+    ).order_by(
+        Admin.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template('/admin/admin_list.html', page_data=page_data)

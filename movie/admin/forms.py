@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
+#/usr/bin/env python3
 #-*- coding:utf-8 -*-
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, FileField, TextAreaField, IntegerField, SelectField, SelectMultipleField
 from wtforms.validators import DataRequired, Email, Regexp, EqualTo, ValidationError, Length
-from movie.models import User, Admin, Tag, Auth
+from movie.models import User, Admin, Tag, Auth, Role
 
 class RegisterForm(FlaskForm):
     name = StringField('Username', [DataRequired(), Length(max=25)])
@@ -292,6 +292,54 @@ class RoleForm(FlaskForm):
         }
     )
 
+class AdminForm(FlaskForm):
+    name = StringField(
+        label='name',
+        validators=[DataRequired('Please input admin name')],
+        description='Admin_name',
+        render_kw={
+            'class':'form-control',
+            'placeholder':'Please input admin name'
+        }
+    )
+
+    pwd = PasswordField(
+        label='password',
+        validators=[
+            DataRequired('Please input admin password'),
+            EqualTo('pwd', message='Two different password')],
+        description='Admin_password',
+        render_kw={
+            'class':'form-control',
+            'placeholder':'Please input admin password'
+        }
+    )
+
+    repwd = PasswordField(
+        label='repassword',
+        validators=[DataRequired('Please input admin repassword')],
+        description='Admin_repassword',
+        render_kw={
+            'class':'form-control',
+            'placeholder':'Please input admin repassword'
+        }
+    )
+
+    role_id = SelectField(
+        label='role_id',
+        coerce=int,
+        choices=[(v.id, v.name) for v in Role.query.all()],
+        render_kw={
+            'class':'form-control'
+        }
+    )
+
+    submit = SubmitField(
+        label='Submit',
+        render_kw={
+            'class':'btn btn-primary'
+        }
+    )
 
 class CommentForm(FlaskForm):
     name = StringField('Username', validators=[DataRequired(), Length(max=255)])
