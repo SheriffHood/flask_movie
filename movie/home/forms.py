@@ -88,9 +88,32 @@ class RegisterForm(FlaskForm):
             raise ValidationError('phone already exists')
 
 class LoginForm(FlaskForm):
-    name = StringField('Username', validators=[DataRequired(), Length(max=255)])
-    pwd = StringField('Password', validators=[DataRequired()])
-    submit = SubmitField('Submit')
+    name = StringField(
+        label='Username',
+        validators=[DataRequired('Please input user name'), Length(max=255)],
+        description='Username',
+        render_kw={
+            'class':'form-control input-lg',
+            'placeholder':'Please input username'
+        }
+    )
+
+    pwd = StringField(
+        label='Password',
+        validators=[DataRequired('Please input password')],
+        description='Password',
+        render_kw={
+            'class':'form-control input-lg',
+            'placeholder':'Please input password'
+        }
+    )
+    
+    submit = SubmitField(
+        label='Regeister',
+        render_kw={
+            'class':'tn btn-lg btn-success btn-block'
+        }
+    )
 
 class UserdetailForm(FlaskForm):
     name = StringField()
