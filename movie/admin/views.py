@@ -4,7 +4,7 @@
 import os, uuid
 from datetime import datetime
 from movie.admin import admin_blueprint
-from flask import render_template, redirect, url_for, flash, session, request, current_app
+from flask import render_template, redirect, url_for, flash, session, request, current_app, abort
 from movie.admin.forms import LoginForm, TagForm, MovieForm, PreviewForm, PwdForm, AuthForm, RoleForm, AdminForm
 from movie.admin import admin_blueprint
 from movie.models import Admin, Tag, Movie, Preview, User, Comment, Moviecol, Userlog, Oplog, Adminlog, Auth, Role
@@ -35,6 +35,26 @@ def admin_login_required(func):
         return func(*args, **kargs)
 
     return decorator_func
+
+def admin_auth(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        admin = Admin.query.join(
+            Role
+        ).filter(
+            Role.id == Admin.role_id,
+            Admin.id == session["admin_id"]
+        ).first()
+        auths = admin.role.auths
+        auths = list(map(lambda v: int(v), auths.split(",")))
+        auth_list = Auth.query.all()
+        urls = [v.url for v in auth_list for val in auths if val == v.id]
+        rule = request.url_rule
+        if str(rule) not in urls:
+            abort(404)
+        return func(*args, **kwargs)
+
+    return decorated_function
 
 @admin_blueprint.route('/')
 @admin_login_required
@@ -89,6 +109,7 @@ def password():
 
 @admin_blueprint.route('/tag/add/', methods=['GET', 'POST'])
 @admin_login_required
+#@admin_auth
 def tag_add():
     form = TagForm()
     if form.validate_on_submit():
@@ -114,6 +135,7 @@ def tag_add():
 
 @admin_blueprint.route('/tag/list/<int:page>/', methods=['GET'])
 @admin_login_required
+#@admin_auth
 def tag_list(page=None):
     if page is None:
         page = 1
@@ -122,6 +144,7 @@ def tag_list(page=None):
 
 @admin_blueprint.route('/tag/del/<int:id>/', methods=['GET'])
 @admin_login_required
+#@admin_auth
 def tag_del(id=None):
     tag = Tag.query.filter_by(id=id).first_or_404()
     db.session.delete(tag)
@@ -132,6 +155,7 @@ def tag_del(id=None):
 
 @admin_blueprint.route('/tag/edit/<int:id>/', methods=['GET', 'POST'])
 @admin_login_required
+#@admin_auth
 def tag_edit(id=None):
     form = TagForm()
     tag = Tag.query.filter_by(id=id).first_or_404()

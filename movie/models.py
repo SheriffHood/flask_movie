@@ -24,11 +24,14 @@ class User(db.Model):
     comments = db.relationship('Comment', backref='users')
     moviecols = db.relationship('Moviecol', backref='users')
  
-    def __init__(self, name):
-        self.name = name
+    #def __init__(self, name):
+        #self.name = name
 
     def __repr__(self):
         return  '<User %r>' % self.name
+
+    def check_pwd(self, pwd):
+        return check_password_hash(self.pwd, pwd)
 
 class Userlog(db.Model):
 
@@ -152,9 +155,6 @@ class Auth(db.Model):
     url = db.Column(db.String(255), unique=True)
     addtime = db.Column(db.DateTime, index=True, default=datetime.now)
 
-    #def __init__(self, name):
-        #self.name = name
-    
     def __repr_(self):
         return '<Auth %r>' % self.name
 
@@ -187,13 +187,6 @@ class Admin(db.Model):
 
     adminlogs = db.relationship('Adminlog', backref='admin')
     oplogs = db.relationship('Oplog', backref='admin')
-
-    #def __init__(self, id, name, pwd, is_super, addtime):
-        #self.id = id
-        #self.name = name
-        #self.pwd = pwd
-        #self.is_super = is_super
-        #self.addtime = addtime
 
     def __repr__(self):
         return '<Admin %r>' % self.name
