@@ -1,6 +1,7 @@
 {% macro page(data, url) -%}
 {% if data %}
-<ul class="pagination pagination-sm no-margin pull-right">
+<nav aria-label="Page navigation"></nav>
+<ul class="pagination">
     <li><a href="{{ url_for(url, page=1) }}">首页</a></li>
     {% if data.has_prev %}
         <li><a href="{{ url_for(url, page=data.prev_num) }}">上一页</a></li>
@@ -23,5 +24,6 @@
     {% endif %}
     <li><a href="{{ url_for(url, page=data.pages) }}">尾页</a></li>
 </ul>
+</nav>
 {% endif %}
 {%- endmacro %}
