@@ -116,17 +116,90 @@ class LoginForm(FlaskForm):
     )
 
 class UserdetailForm(FlaskForm):
-    name = StringField()
-    email = StringField()
-    phone = StringField()
-    face = FileField()
-    info = TextAreaField()
-    submit = SubmitField()
+    name = StringField(
+        label='Username',
+        validators=[DataRequired('Please input user name'), Length(max=255)],
+        description='Username',
+        render_kw={
+            'class':'form-control',
+            'placeholder':'Please input username'
+        }
+    )
+
+    email = StringField(
+        label='mail',
+        validators=[DataRequired('Please input mailbox'),
+        Email('Wrong mailbox form')],
+        description='mail',
+        render_kw={
+            'class':'form-control',
+            'placeholder':'Please input mail address'
+        }
+    )
+
+    phone = StringField(
+        label='phone',
+        validators=[DataRequired('Please input cell phone number'),
+        Regexp('1[358]\\d{9}', message='cell phone form wrong')
+        ],
+        description='phone',
+        render_kw={
+            'class':'form-control',
+            'placeholder':'Please input phone'
+        }
+    )
+
+    face = FileField(
+        label='face',
+        validators=[DataRequired('Please upload face')],
+        description='face'
+        )
+
+    info = TextAreaField(
+        label='info',
+        validators=[DataRequired('Please input user info')],
+        description='info',
+        render_kw={
+            'class':'form-control',
+            'rows':10
+        }
+    )
+
+    submit = SubmitField(
+        label='Save',
+        render_kw={
+            'class':'btn btn-success'
+        }
+    )
 
 class PwdForm(FlaskForm):
-    old_password = PasswordField()
-    new_password = PasswordField()
-    submit = SubmitField()
+
+    old_password = PasswordField(
+    label='old password',
+    validators=[DataRequired('Please input old password')],
+    description='old_password',
+    render_kw={
+        'class':'form-control',
+        'placeholder':'Please input old password'
+        }
+    )
+
+    new_password = PasswordField(
+        label='new password',
+        validators=[DataRequired('Please input new password')],
+        description='new_password',
+        render_kw={
+            'class':'form-control',
+            'placeholder':'Please input new password'
+        }
+    )
+
+    submit = SubmitField(
+        label='Reset password',
+        render_kw={
+            'class':'btn btn-success',
+        }
+    )
 
 class CommentForm(FlaskForm):
     name = StringField('Username', validators=[DataRequired(), Length(max=255)])

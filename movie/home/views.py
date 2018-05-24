@@ -2,12 +2,20 @@
 
 from flask import render_template, url_for, redirect, flash, request, session
 from movie.home import home_blueprint
-from movie.home.forms import LoginForm, RegisterForm
+from movie.home.forms import LoginForm, RegisterForm, UserdetailForm, PwdForm
 from movie.models import User, Userlog
 from werkzeug.security import generate_password_hash
-import uuid
-from movie import db
+from werkzeug.utils import secure_filename
+import uuid, os
+from movie import db, app
+from datetime import datetime
 from functools import wraps
+
+def change_filename(filename):
+    fileinfo = os.path.splitext(filename)
+    filename = datetime.now().strftime("%Y%m%d%H%M%S") + str(uuid.uuid4().hex) + fileinfo[-1]
+
+    return filename
 
 def user_login_required(func):
     @wraps(func)
@@ -74,11 +82,71 @@ def register():
 @home_blueprint.route('/user/', methods=['GET', 'POST'])
 @user_login_required
 def user():
-    return render_template('home/user.html')
+    
+    form = UserdetailForm()
+    user = User.query.get(int(session['user_id']))
+    form.face.validators = []
+    if request.method == 'GET':
+        form.name.data = user.name
+        form.email.data = user.email
+        form.phone.data = user.phone
+        form.info.data = user.info
+    if form.validate_on_submit():
+        data = form.data
+        file_face = secure_filename(form.face.data.filename)
+        if not os.path.exists(app.config['FACE_PATH']):
+            os.makedirs(app.config['FACE_PATH'])
+            os.chmod(app.config['FACE_PATH'], 6)
 
-@home_blueprint.route('/password/')
+        user.face = change_filename(file_face)
+        form.face.data.save(app.config['FACE_PATH'] + user.face)
+
+        name_count = User.query.filter_by(name=data['name']).count()
+        if data['name'] != user.name and name_count == 1:
+            flash('name already exists', 'err')
+            return redirect(url_for('home.user'))
+
+        email_count = User.query.filter_by(email=data['email']).count()
+        if data['email'] != user.email and email_count == 1:
+            flash('email already exists', 'err')
+            return redirect(url_for('home.user'))
+
+        phone_count = User.query.filter_by(phone=data['phone']).count()
+        if data['phone'] != user.phone and phone_count == 1:
+            flash('phone already exists', 'err')
+            return redirect(url_for('home.user'))
+
+        user.name = data['name']
+        user.email = data['email']
+        user.phone = data['phone']
+        user.info = data['info']
+
+        db.session.add(user)
+        db.session.commit()
+        flash('Revise user successfully!', 'ok')
+        return redirect(url_for('home.user'))
+    return render_template('home/user.html', form=form, user=user)
+
+@home_blueprint.route('/password/', methods=['GET', 'POST'])
 @user_login_required
 def password():
+    
+    form = PwdForm()
+    if form.validate_on_submit():
+        data = form.data
+        user = User.query.filter_by(name=session['user']).first()
+        if not user.check_pwd(data['old_password']):
+            flash('Wrong old password', 'err')
+            return redirect(url_for('home.password')) 
+        user.pwd = generate_password_hash(data['new_password'])
+
+        db.session.add(user)
+        db.session.commit()
+        flash('Reset password successfully!', 'ok')
+        return redirect(url_for('home.logout'))
+    return render_template('home/password.html', form=form)
+    
+
     return render_template('home/password.html')
 
 @home_blueprint.route('/comments/')
@@ -86,10 +154,19 @@ def password():
 def comments():
     return render_template('home/comments.html')
 
-@home_blueprint.route('/loginlog/')
+@home_blueprint.route('/loginlog/<int:page>/', methods=['GET', 'POST'])
 @user_login_required
-def loginlog():
-    return render_template('home/loginlog.html')
+def loginlog(page=None):
+    
+    if page is None:
+        page = 1
+
+    page_data = Userlog.query.filter_by(
+        user_id = int( session['user_id'] )
+    ).order_by(
+        Userlog.loggin_time.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template('home/loginlog.html', page_data=page_data)
 
 @home_blueprint.route('/moviecol/')
 @user_login_required

@@ -14,3 +14,4 @@ class DevConfig(Config):
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     UPLOAD_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'movie/static/uploads/')
+    FACE_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'movie/static/uploads/users/')
