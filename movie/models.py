@@ -124,8 +124,8 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     movie_id  = db.Column(db.Integer, db.ForeignKey('movie.id'))
 
-    def __init__(self, id):
-        self.id = id
+    #def __init__(self, id):
+        #self.id = id
 
     def __repr__(self):
         return '<Comment %r>' % self.id
@@ -140,8 +140,8 @@ class Moviecol(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'))
 
-    def __init__(self, id):
-        self.id = id
+    #def __init__(self, id):
+    #    self.id = id
 
     def __repr__(self):
         return '<Moviecol %r>' % self.id
