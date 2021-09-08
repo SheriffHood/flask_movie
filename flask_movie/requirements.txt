@@ -57,7 +57,7 @@ onboard==1.2.0
 oneconf==0.3.9
 padme==1.1.1
 pexpect==4.0.1
-Pillow==3.1.2
+Pillow==8.3.2
 piston-mini-client==0.7.5
 plainbox==0.25
 progressbar==2.3
